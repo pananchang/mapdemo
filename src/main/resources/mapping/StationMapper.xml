@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.mapdemo.mapper.StationMapper">
+
+    <select id="getStationByScheduleName" resultType="com.example.mapdemo.entity.Station">
+        SELECT
+               ID AS "id",
+               STATION_ID AS "stationId",
+               STATION_NAME AS "stationName",
+               SCHEDULE_ID AS "scheduleId",
+               SCHEDULE_NAME AS "scheduleName",
+               LONGITUDE AS  "longitude",
+               LATITUDE AS "latitude",
+               LONGITUDE_NEW AS "longitudeNew",
+               LATITUDE_NEW AS "latitudeNew",
+               LOCATION AS "location"
+
+
+        FROM STATION
+        WHERE SCHEDULE_NAME = #{scheduleName}
+    </select>
+    <update id="updateLng" parameterType="com.example.mapdemo.entity.Station" >
+        UPDATE STATION SET LONGITUDE_NEW = #{station.longitudeNew},LATITUDE_NEW = #{station.latitudeNew} WHERE ID = #{station.id}
+    </update>
+
+    <update id ="batchUpdateLng" >
+        UPDATE STATION SET
+        <foreach collection="stations" open="LONGITUDE_NEW =  CASE " close="END" item="item" separator=" ">
+             WHEN ID = #{item.id} THEN #{item.longitudeNew}
+        </foreach>,
+        <foreach collection="stations" open="LATITUDE_NEW =  CASE " close="END" item="item" separator=" ">
+            WHEN ID = #{item.id} THEN  #{item.latitudeNew}
+        </foreach>
+        <where>
+        <if test="stations.size() > 0">
+            ID IN
+            <foreach collection="stations" open="(" close=")" separator="," item="item">
+                #{item.id}
+            </foreach>
+        </if>
+
+        </where>
+    </update>
+</mapper>
